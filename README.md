@@ -34,4 +34,4 @@ This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter]
 
 <!-- github-only -->
 
-[license]: https://github.com/DiogenesAnalytics/risk/blob/main/LICENSE
+[license]: https://github.com/DiogenesAnalytics/risk/blob/master/LICENSE
