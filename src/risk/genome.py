@@ -1,4 +1,7 @@
-from random import choice, gauss, random, uniform
+from random import choice
+from random import gauss
+from random import random
+from random import uniform
 
 
 class Gene(object):
@@ -19,7 +22,9 @@ class Gene(object):
         precision (int): The number of digits to round to. Defaults to 4.
     """
 
-    def __init__(self, name, min_value, max_value, volatility, granularity, precision=4):
+    def __init__(
+        self, name, min_value, max_value, volatility, granularity, precision=4
+    ):
         self.name = name
         self.min_value = min_value
         self.max_value = max_value
@@ -32,7 +37,13 @@ class Gene(object):
 
     def mutate(self, value):
         if random() < self.volatility:
-            round(min(max((value + gauss(0, self.granularity)), self.min_value), self.max_value), self.precision)
+            round(
+                min(
+                    max((value + gauss(0, self.granularity)), self.min_value),
+                    self.max_value,
+                ),
+                self.precision,
+            )
         return value
 
 
@@ -69,12 +80,13 @@ class Genome(object):
     Args:
         genes (dict): Dict of all genes.
     """
+
     specifications = []
 
     def __init__(self, genes):
         self.genes = genes
         if len(set(self.gene_names)) < len(self.genes):
-            raise ValueError('Genome: genes must have unique names.')
+            raise ValueError("Genome: genes must have unique names.")
 
     def __eq__(self, other):
         return all((self.genes[name] == other.genes[name] for name in self.gene_names))
@@ -102,8 +114,13 @@ class Genome(object):
             other (Genome): The genome to combine with.
 
         Returns:
-            Genome: A new genome object with a mixture of genes. """
-        return self.__class__({name: choice((self.genes[name], other.genes[name])) for name in self.gene_names})
+            Genome: A new genome object with a mixture of genes."""
+        return self.__class__(
+            {
+                name: choice((self.genes[name], other.genes[name]))
+                for name in self.gene_names
+            }
+        )
 
     def mutate(self):
         """
@@ -112,4 +129,6 @@ class Genome(object):
         Returns:
             Genome: A new genome with slightly modified genes.
         """
-        return self.__class__({s.name: s.mutate(self[s.name]) for s in self.specifications})
+        return self.__class__(
+            {s.name: s.mutate(self[s.name]) for s in self.specifications}
+        )

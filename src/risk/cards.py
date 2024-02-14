@@ -23,17 +23,19 @@ class Cards(object):
     """
 
     card_sets = {
-        'infantry': ((3, 0, 0), 4),
-        'cavalry': ((0, 3, 0), 6),
-        'artillery': ((0, 0, 3), 8),
-        'mix': ((1, 1, 1), 10)
+        "infantry": ((3, 0, 0), 4),
+        "cavalry": ((0, 3, 0), 6),
+        "artillery": ((0, 0, 3), 8),
+        "mix": ((1, 1, 1), 10),
     }
 
     def __init__(self, n_inf=0, n_cav=0, n_art=0):
         self.cards = [n_inf, n_cav, n_art]
 
     def __repr__(self):
-        return '{cls}{cards}'.format(cls=self.__class__.__name__, cards=tuple(self.cards))
+        return "{cls}{cards}".format(
+            cls=self.__class__.__name__, cards=tuple(self.cards)
+        )
 
     @property
     def obligatory_turn_in(self):
@@ -56,10 +58,9 @@ class Cards(object):
                 of the form (set_name (str), armies (int)).
         """
         return tuple(
-            (set_name, armies) for
-            set_name, (card_set, armies) in
-            self.card_sets.items() if
-            self.is_complete(set_name)
+            (set_name, armies)
+            for set_name, (card_set, armies) in self.card_sets.items()
+            if self.is_complete(set_name)
         )
 
     @property
@@ -97,8 +98,11 @@ class Cards(object):
         """
         card_set, armies = self.card_sets[set_name]
         if not self.is_complete(set_name):
-            raise ValueError('{self}: cannot turn in {set_name}, it is incomplete!'
-                             .format(self=self, set_name=set_name))
+            raise ValueError(
+                "{self}: cannot turn in {set_name}, it is incomplete!".format(
+                    self=self, set_name=set_name
+                )
+            )
         for card_index, n_cards in enumerate(card_set):
             self.cards[card_index] -= n_cards
         return armies

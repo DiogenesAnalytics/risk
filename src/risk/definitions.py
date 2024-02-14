@@ -1,48 +1,50 @@
 import pandas as pd
 
+
 territory_names = {
-    0: 'afghanistan',
-    1: 'alaska',
-    2: 'alberta',
-    3: 'argentina',
-    4: 'brazil',
-    5: 'central-america',
-    6: 'china',
-    7: 'congo',
-    8: 'east-africa',
-    9: 'eastern-australia',
-    10: 'eastern-united-states',
-    11: 'egypt',
-    12: 'great-britain',
-    13: 'greenland',
-    14: 'iceland',
-    15: 'india',
-    16: 'indonesia',
-    17: 'irkutsk',
-    18: 'japan',
-    19: 'kamchatka',
-    20: 'madagascar',
-    21: 'middle-east',
-    22: 'mongolia',
-    23: 'new-guinea',
-    24: 'north-africa',
-    25: 'northern-europe',
-    26: 'northwest-territory',
-    27: 'ontario',
-    28: 'peru',
-    29: 'quebec',
-    30: 'scandinavia',
-    31: 'siam',
-    32: 'siberia',
-    33: 'south-africa',
-    34: 'southern-europe',
-    35: 'ukraine',
-    36: 'ural',
-    37: 'venezuela',
-    38: 'western-australia',
-    39: 'western-europe',
-    40: 'western-united-states',
-    41: 'yakutsk'}
+    0: "afghanistan",
+    1: "alaska",
+    2: "alberta",
+    3: "argentina",
+    4: "brazil",
+    5: "central-america",
+    6: "china",
+    7: "congo",
+    8: "east-africa",
+    9: "eastern-australia",
+    10: "eastern-united-states",
+    11: "egypt",
+    12: "great-britain",
+    13: "greenland",
+    14: "iceland",
+    15: "india",
+    16: "indonesia",
+    17: "irkutsk",
+    18: "japan",
+    19: "kamchatka",
+    20: "madagascar",
+    21: "middle-east",
+    22: "mongolia",
+    23: "new-guinea",
+    24: "north-africa",
+    25: "northern-europe",
+    26: "northwest-territory",
+    27: "ontario",
+    28: "peru",
+    29: "quebec",
+    30: "scandinavia",
+    31: "siam",
+    32: "siberia",
+    33: "south-africa",
+    34: "southern-europe",
+    35: "ukraine",
+    36: "ural",
+    37: "venezuela",
+    38: "western-australia",
+    39: "western-europe",
+    40: "western-united-states",
+    41: "yakutsk",
+}
 
 territory_neighbors = {
     0: [35, 36, 6, 15, 21],
@@ -86,7 +88,8 @@ territory_neighbors = {
     38: [9, 16, 23],
     39: [12, 24, 34, 25],
     40: [2, 5, 10, 27],
-    41: [19, 17, 32]}
+    41: [19, 17, 32],
+}
 
 territory_locations = {
     0: [1140, 430],
@@ -130,20 +133,26 @@ territory_locations = {
     38: [1445, 970],
     39: [720, 540],
     40: [280, 400],
-    41: [1390, 135]}
+    41: [1390, 135],
+}
 
 territory_neighbors_df = pd.DataFrame(
-    [(territory, neighbor) for territory, neighbors in territory_neighbors.items() for neighbor in neighbors],
-    columns=['territory_id', 'neighbor_id']
+    [
+        (territory, neighbor)
+        for territory, neighbors in territory_neighbors.items()
+        for neighbor in neighbors
+    ],
+    columns=["territory_id", "neighbor_id"],
 )
 
 continent_names = {
-    0: 'africa',
-    1: 'asia',
-    2: 'europe',
-    3: 'north-america',
-    4: 'oceania',
-    5: 'south-america'}
+    0: "africa",
+    1: "asia",
+    2: "europe",
+    3: "north-america",
+    4: "oceania",
+    5: "south-america",
+}
 
 continent_bonuses = {0: 3, 1: 7, 2: 5, 3: 5, 4: 2, 5: 2}
 
@@ -153,24 +162,21 @@ continent_territories = {
     2: [12, 14, 25, 30, 34, 35, 39],
     3: [1, 2, 5, 10, 13, 26, 27, 29, 40],
     4: [9, 16, 23, 38],
-    5: [3, 4, 28, 37]}
+    5: [3, 4, 28, 37],
+}
 
 territory_continents = {
     tid: cid for cid, tids in continent_territories.items() for tid in tids
-    }
+}
 
 player_colors = {
-    0: 'red',
-    1: 'blue',
-    2: 'green',
-    3: 'yellow',
-    4: 'pink',
-    5: 'black',
-    None: None}
+    0: "red",
+    1: "blue",
+    2: "green",
+    3: "yellow",
+    4: "pink",
+    5: "black",
+    None: None,
+}
 
-starting_armies = {
-    2: 40,
-    3: 35,
-    4: 30,
-    5: 25,
-    6: 20}
+starting_armies = {2: 40, 3: 35, 4: 30, 5: 25, 6: 20}

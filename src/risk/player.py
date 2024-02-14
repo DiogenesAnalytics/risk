@@ -1,7 +1,7 @@
 import random
 
-import definitions
-import missions
+from . import definitions
+from . import missions
 
 
 class Player(object):
@@ -57,7 +57,7 @@ class Player(object):
         try:
             return self.game.board
         except AttributeError:
-            raise ValueError('Cannot access board: player is unassigned.')
+            raise ValueError("Cannot access board: player is unassigned.")
 
     @property
     def cards(self):
@@ -73,7 +73,7 @@ class Player(object):
         try:
             return self.game.cards[self.player_id]
         except AttributeError:
-            raise ValueError('Cannot access cards: player is unassigned.')
+            raise ValueError("Cannot access cards: player is unassigned.")
 
     @property
     def mission(self):
@@ -89,7 +89,7 @@ class Player(object):
         try:
             return self.game.missions[self.player_id]
         except AttributeError:
-            raise ValueError('Cannot access mission: player is unassigned.')
+            raise ValueError("Cannot access mission: player is unassigned.")
 
     # ===================== #
     # == Available Moves == #
@@ -154,7 +154,11 @@ class Player(object):
         if len(self.fortifications) == 0:
             return None
         fortification = self.fortifications[0]
-        return fortification.from_territory_id, fortification.to_territory_id, fortification.from_armies - 1
+        return (
+            fortification.from_territory_id,
+            fortification.to_territory_id,
+            fortification.from_armies - 1,
+        )
 
     def reinforce(self):
         """
@@ -172,7 +176,9 @@ class Player(object):
         Returns:
             str/None: Name of set to turn in, or None.
         """
-        complete_sets = {set_name: armies for set_name, armies in self.cards.complete_sets}
+        complete_sets = {
+            set_name: armies for set_name, armies in self.cards.complete_sets
+        }
         if len(complete_sets) > 0:
             return max(complete_sets.items(), key=lambda x: x[1])[0]
         return None
@@ -220,7 +226,9 @@ class SmartPlayer(Player):
         Returns:
             float: Army vantage difference.
         """
-        return self.army_vantage(move.from_territory_id) - self.army_vantage(move.to_territory_id)
+        return self.army_vantage(move.from_territory_id) - self.army_vantage(
+            move.to_territory_id
+        )
 
     @classmethod
     def chance_ratio(cls, move):
@@ -244,10 +252,10 @@ class SmartPlayer(Player):
         Returns:
             float: chance of conquering the territory [0, 1].
         """
-        n_att = move.from_armies - 1.
+        n_att = move.from_armies - 1.0
         n_def = move.to_armies
         if n_att < 1:
-            return 0.
+            return 0.0
         if n_att > n_def:
             return (n_att * 1.5) / (n_att + n_def)
         else:
@@ -265,7 +273,10 @@ class SmartPlayer(Player):
             float: Continent value.
         """
         continent_id = definitions.territory_continents[territory_id]
-        return self.board.continent_fraction(continent_id, self.player_id) * definitions.continent_bonuses[continent_id]
+        return (
+            self.board.continent_fraction(continent_id, self.player_id)
+            * definitions.continent_bonuses[continent_id]
+        )
 
     def direct_bonus(self, territory_id):
         """
@@ -279,12 +290,20 @@ class SmartPlayer(Player):
             float [0, 1]: the direct bonus. "
         """
         continent_id = definitions.territory_continents[territory_id]
-        num_foreign_territories = self.board.num_foreign_continent_territories(continent_id, self.player_id)
-        if num_foreign_territories == 0 and self.board.owner(territory_id) == self.player_id:
-            return definitions.continent_bonuses[continent_id] / 7.
-        elif num_foreign_territories == 1 and self.board.owner(territory_id) != self.player_id:
-            return definitions.continent_bonuses[continent_id] / 7.
-        return 0.
+        num_foreign_territories = self.board.num_foreign_continent_territories(
+            continent_id, self.player_id
+        )
+        if (
+            num_foreign_territories == 0
+            and self.board.owner(territory_id) == self.player_id
+        ):
+            return definitions.continent_bonuses[continent_id] / 7.0
+        elif (
+            num_foreign_territories == 1
+            and self.board.owner(territory_id) != self.player_id
+        ):
+            return definitions.continent_bonuses[continent_id] / 7.0
+        return 0.0
 
     def mission_value(self, territory_id):
         """
@@ -300,24 +319,31 @@ class SmartPlayer(Player):
             if self.mission.target_id == self.player_id:
                 return self.board.n_territories(self.player_id) < 24
             else:
-                return 1. if self.board.owner(territory_id) == self.mission.target_id else 0.
+                return (
+                    1.0
+                    if self.board.owner(territory_id) == self.mission.target_id
+                    else 0.0
+                )
         elif isinstance(self.mission, missions.ContinentMission):
             continent_id = definitions.territory_continents[territory_id]
             if continent_id in self.mission.continents:
-                return 1.
+                return 1.0
             elif isinstance(self.mission, missions.ExtraContinentMission):
-                if any(self.board.owns_continent(self.player_id, cid) for cid in self.mission.other_continents):
-                    return 0.
+                if any(
+                    self.board.owns_continent(self.player_id, cid)
+                    for cid in self.mission.other_continents
+                ):
+                    return 0.0
                 else:
                     return self.board.continent_fraction(continent_id, self.player_id)
             else:
-                return 0.
+                return 0.0
         elif isinstance(self.mission, missions.BaseMission):
             return self.board.n_territories(self.player_id) < 24
         elif isinstance(self.mission, missions.TerritoryMission):
             return self.board.n_territories(self.player_id) < 18
         else:
-            raise Exception('Player: unknown mission: {m}'.format(m=self.mission))
+            raise Exception("Player: unknown mission: {m}".format(m=self.mission))
 
     def territory_vantage(self, territory_id):
         """
@@ -340,11 +366,12 @@ class SmartPlayer(Player):
         Returns:
             float: Territory vantage difference.
         """
-        return self.territory_vantage(move.from_territory_id) - self.territory_vantage(move.to_territory_id)
+        return self.territory_vantage(move.from_territory_id) - self.territory_vantage(
+            move.to_territory_id
+        )
 
 
 class RandomPlayer(Player):
-
     def attack(self, won_yet):
         """
         Randomly decide whether to make an attack.
@@ -367,7 +394,9 @@ class RandomPlayer(Player):
 
     def turn_in_cards(self):
         complete_sets = [sn for sn, arm in self.cards.complete_sets]
-        if len(complete_sets) == 0 or (not self.cards.obligatory_turn_in and random.random() > 0.5):
+        if len(complete_sets) == 0 or (
+            not self.cards.obligatory_turn_in and random.random() > 0.5
+        ):
             return None
         return random.choice(complete_sets)
 
@@ -376,6 +405,8 @@ class RandomPlayer(Player):
         if len(possible_fortifications) == 0:
             return None
         fortification = random.choice(possible_fortifications)
-        return (fortification.from_territory_id,
-                fortification.to_territory_id,
-                random.randint(1, fortification.from_armies - 1))
+        return (
+            fortification.from_territory_id,
+            fortification.to_territory_id,
+            random.randint(1, fortification.from_armies - 1),
+        )

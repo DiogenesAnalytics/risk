@@ -3,10 +3,10 @@ import random
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 
-import definitions
-from board import Board
-from cards import Cards
-from missions import missions as get_missions
+from . import definitions
+from .board import Board
+from .cards import Cards
+from .missions import missions as get_missions
 
 
 class Game(object):
@@ -19,7 +19,7 @@ class Game(object):
     def __init__(self, board, cards, missions, players, turn):
         """
         Initialize the Game.
-        
+
         Args:
            board (Board): the game Board, initialized for the correct number of players.
            cards (list): list of Cards objects, one for each player.
@@ -46,10 +46,10 @@ class Game(object):
     def create(cls, players):
         """
         Create a new Game.
-        
+
         Args:
             players (list): List of Players.
-                
+
         Returns:
             Game: newly initialized Game object.
         """
@@ -59,7 +59,7 @@ class Game(object):
             cards=cls.assign_cards(n_players),
             missions=cls.assign_missions(n_players),
             players=players,
-            turn=-1
+            turn=-1,
         )
 
     @staticmethod
@@ -101,7 +101,7 @@ class Game(object):
     def initialize_single_army(self):
         """
         Have each player place one army on the board, if they have one left.
-        
+
         Returns:
             bool, True if at least one player has placed a new army. False if all armies have been placed.
         """
@@ -117,7 +117,7 @@ class Game(object):
     def current_player_id(self):
         """
         Return the player id of the current turn.
-        
+
         Returns:
             int/None: ID of the player whose turn it is, None if the game has not started yet.
         """
@@ -127,17 +127,21 @@ class Game(object):
     def current_player(self):
         """
         Return the player of the current turn.
-        
+
         Returns:
             Player/None: Player whose turn it is, None if the game has not started yet.
         """
-        return self.players[self.current_player_id] if self.current_player_id is not None else None
+        return (
+            self.players[self.current_player_id]
+            if self.current_player_id is not None
+            else None
+        )
 
     @property
     def n_players(self):
         """
         Return the number of players in the game, including those that are game-over.
-        
+
         Returns:
             int: The number of players.
         """
@@ -147,7 +151,7 @@ class Game(object):
     def player_ids(self):
         """
         Return all player ids in the game.
-        
+
         Returns:
             generator: For all player ids in the game.
         """
@@ -157,7 +161,7 @@ class Game(object):
     def starting_armies(self):
         """
         Return the number of armies each player can place at the start.
-        
+
         Returns:
             int: Total number of starting armies per player.
         """
@@ -174,7 +178,7 @@ class Game(object):
     def winner(self):
         """
         Return the winning player, if any.
-        
+
         Returns:
             Player/None: the winning player, or None if there is none.
         """
@@ -186,7 +190,7 @@ class Game(object):
     def has_ended(self):
         """
         Checks if the game has ended.
-        
+
         Returns:
             bool: True if there is a winner, else False.
         """
@@ -195,25 +199,25 @@ class Game(object):
     def has_won(self, player_id):
         """
         Checks if a player has won.
-        
+
         Args:
             player_id (int): The player id of the player to check.
-                
+
         Returns:
             bool: True if the player has won, else False.
         """
         return self.is_alive(player_id) and (
-            self.missions[player_id].evaluate(self.board) or
-            self.board.n_territories(player_id) == 42
+            self.missions[player_id].evaluate(self.board)
+            or self.board.n_territories(player_id) == 42
         )
 
     def is_alive(self, player_id):
         """
         Checks if a player is still alive.
-        
+
         Args:
             player_id (int): The player id of the player to check.
-                
+
         Returns:
             bool: True if the player has armies left, else False.
         """
@@ -232,7 +236,7 @@ class Game(object):
                 - fortification.
         """
         if not self.is_alive(self.current_player_id):
-            raise Exception('Player cannot perform a turn, he is game-over!')
+            raise Exception("Player cannot perform a turn, he is game-over!")
         self.reinforce(self.current_player)
         self.attack(self.current_player)
         self.fortify(self.current_player)
@@ -248,7 +252,7 @@ class Game(object):
           - In the second part the player may return in reinforcement cards,
             after which he receives more reinforcements which he places on the
             board one-by-one.
-        
+
         Args:
             player (Player): player who may reinforce.
         """
@@ -266,7 +270,7 @@ class Game(object):
         """
         Handle the attack phase of a player.
         The player may perform as many attacks as he wishes.
-        
+
         Args:
             player (Player): player that may attack.
         """
@@ -276,7 +280,7 @@ class Game(object):
             if attack is None:
                 break
             if not self.current_player_id == self.board.owner(attack[0]):
-                raise Exception('Invalid attack!')
+                raise Exception("Invalid attack!")
             if self.board.attack(*attack):
                 did_win = True
         if did_win:
@@ -285,60 +289,66 @@ class Game(object):
     def fortify(self, player):
         """
         Handle the fortification phase of a player.
-        
+
         Args:
             player (Player): player that may fortify.
         """
         fortification = player.fortify()
         if fortification is not None:
             if not self.current_player_id == self.board.owner(fortification[0]):
-                raise Exception('Invalid fortification!')
+                raise Exception("Invalid fortification!")
             self.board.fortify(*fortification)
 
     # ================== #
     # == Plot methods == #
-    # ================== #           
+    # ================== #
 
     def plot(self):
-        """ Plot the current game on a board. """
+        """Plot the current game on a board."""
         self.board.plot_board()
         self.plot_table()
         self.plot_turn()
-        plt.axis('off')
+        plt.axis("off")
         plt.show()
 
     def plot_table(self):
-        """ Plot the stats table. """
-        text = ['Player: ter arm mis']
+        """Plot the stats table."""
+        text = ["Player: ter arm mis"]
 
         for player in self.players:
             pid = player.player_id
-            text.append('{c:6}:{r:4} {a:3} {m:2.2f}'.format(
-                c=definitions.player_colors[pid],
-                r=self.board.n_territories(pid),
-                a=self.board.n_armies(pid),
-                m=self.missions[pid].score(self.board))
-                        .expandtabs())
+            text.append(
+                "{c:6}:{r:4} {a:3} {m:2.2f}".format(
+                    c=definitions.player_colors[pid],
+                    r=self.board.n_territories(pid),
+                    a=self.board.n_armies(pid),
+                    m=self.missions[pid].score(self.board),
+                ).expandtabs()
+            )
 
         font0 = FontProperties()
-        font0.set_family('monospace')
+        font0.set_family("monospace")
 
         # Left bottom
-        plt.text(-50, 1160, '\n'.join(text), fontproperties=font0)
+        plt.text(-50, 1160, "\n".join(text), fontproperties=font0)
 
     def plot_turn(self):
-        """ Plot the turn. """
-        if self.current_player >= 0:
+        """Plot the turn."""
+        if self.current_player is not None:
             if self.has_ended():
                 color = self.winner().color
                 mission = self.winner().mission.description
-                content = 'Winner: {p} - {m}\nTotal turns {nr}'.format(nr=self.turn, p=color, m=mission)
+                content = "Winner: {p} - {m}\nTotal turns {nr}".format(
+                    nr=self.turn, p=color, m=mission
+                )
             else:
                 color = definitions.player_colors[self.current_player_id]
                 mission = self.missions[self.current_player_id].description
-                content = 'Turn {nr}: {p} - {m}'.format(nr=self.turn, p=color, m=mission)
+                content = "Turn {nr}: {p} - {m}".format(
+                    nr=self.turn, p=color, m=mission
+                )
         else:
-            content = 'Pre-game'
+            content = "Pre-game"
 
         # Top left
         plt.text(-50, 0, content, fontsize=12)

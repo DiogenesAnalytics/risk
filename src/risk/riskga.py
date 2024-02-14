@@ -3,7 +3,7 @@ import random
 
 import pandas as pd
 
-from ranker import RiskRanker
+from .ranker import RiskRanker
 
 
 class PlayerPool(object):
@@ -12,17 +12,26 @@ class PlayerPool(object):
 
     Args:
         player_cls (class): The player type to create.
-        genes (iterable): Iterable containing dictionaries of genes for initializing players. If the length of this
-            iterable is smaller than the pool size, additional players will be randomly initialized up to the pool
+        genes (iterable): Iterable containing dictionaries of genes for initializing
+            players. If the length of this iterable is smaller than the pool size,
+            additional players will be randomly initialized up to the pool
             size. Defaults to an empty iterable.
         max_turns (int): Maximum number of turns per game. Defaults to 1500.
         n_players (int): Number of players in a game. Defaults to 4.
         pool_size (int): Size of the gene pool. Defaults to 150.
-        ranking_iterations (int): Number of games to play to create a rank. Defaults to 12.
+        ranking_iterations (int): Number of games to play to create a rank.
+            Defaults to 12.
     """
 
-    def __init__(self, player_cls, genes=tuple(),
-                 max_turns=1500, n_players=4, pool_size=150, ranking_iterations=12):
+    def __init__(
+        self,
+        player_cls,
+        genes=tuple(),
+        max_turns=1500,
+        n_players=4,
+        pool_size=150,
+        ranking_iterations=12,
+    ):
         self.iteration_counter = 0
         self.max_turns = max_turns
         self.n_players = n_players
@@ -54,7 +63,7 @@ class PlayerPool(object):
         Returns:
             PlayerPool: Pool with loaded genes.
         """
-        with open(filename, 'r') as sfile:
+        with open(filename, "r") as sfile:
             genes = json.load(sfile)
         return cls(player_cls, genes=genes, **kwargs)
 
@@ -65,7 +74,7 @@ class PlayerPool(object):
         Args:
             filename (str): Path to the gene file.
         """
-        with open(filename, 'w') as sfile:
+        with open(filename, "w") as sfile:
             json.dump(self.genes, sfile)
 
     def save_log(self, filename):
@@ -100,9 +109,14 @@ class PlayerPool(object):
         """
         self.iteration_counter += 1
         self.rank()
-        good_players = self.pool[:self.pool_size / 4]
-        comb_players = [random.choice(self.pool).combine(random.choice(self.pool)) for _ in range(self.pool_size / 4)]
-        muta_players = [p.mutate() for p in random.sample(self.pool, self.pool_size / 2)]
+        good_players = self.pool[: self.pool_size / 4]
+        comb_players = [
+            random.choice(self.pool).combine(random.choice(self.pool))
+            for _ in range(self.pool_size / 4)
+        ]
+        muta_players = [
+            p.mutate() for p in random.sample(self.pool, self.pool_size / 2)
+        ]
         self.pool = good_players + comb_players + muta_players
         self.log.append(self.gene_df)
 
@@ -115,7 +129,7 @@ class PlayerPool(object):
             pandas.DataFrame
         """
         df = pd.DataFrame([p.genes for p in self.pool])
-        df['iteration'] = self.iteration_counter
+        df["iteration"] = self.iteration_counter
         return df
 
     def rank(self):
